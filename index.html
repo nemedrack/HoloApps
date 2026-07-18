@@ -23,7 +23,10 @@
 
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-medium) 100%);
+            background-image: url('background.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -42,10 +45,14 @@
             text-align: center;
             margin-bottom: 60px;
             animation: slideDown 0.8s ease-out;
+            background: rgba(61, 46, 94, 0.3);
+            padding: 40px 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
         }
 
         .logo-container {
-            margin-bottom: 30px;
+            display: none;
         }
 
         .logo-container img {
@@ -113,12 +120,20 @@
         .app-icon {
             font-size: 4rem;
             text-align: center;
-            padding: 40px 20px 20px;
-            height: 150px;
+            padding: 0;
+            height: 250px;
             display: flex;
             align-items: center;
             justify-content: center;
             background: linear-gradient(135deg, var(--accent-light) 0%, #E8DFF0 100%);
+            overflow: hidden;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .app-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .app-content {
@@ -169,12 +184,12 @@
             margin-top: 60px;
             padding-top: 30px;
             border-top: 2px solid rgba(255, 255, 255, 0.2);
-            color: var(--accent-light);
+            color: var(--primary-dark);
             font-size: 0.9rem;
         }
 
         .footer a {
-            color: var(--white);
+            color: var(--primary-dark);
             text-decoration: none;
             font-weight: 600;
             transition: color 0.3s ease;
@@ -206,6 +221,41 @@
             }
         }
 
+        .blessing-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(61, 46, 94, 0.9);
+            color: var(--white);
+            padding: 20px 30px;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: 2px solid var(--primary-light);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.6s ease-out;
+            max-width: 300px;
+            text-align: center;
+            display: none;
+            z-index: 1000;
+        }
+
+        .blessing-message.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(400px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2.5rem;
@@ -221,13 +271,22 @@
             }
 
             .app-icon {
-                height: 120px;
+                height: 180px;
                 font-size: 3.5rem;
+            }
+
+            .blessing-message {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: none;
             }
         }
     </style>
 </head>
 <body>
+    <div class="blessing-message" id="blessingMessage"></div>
+
     <div class="container">
         <div class="header">
             <div class="logo-container">
@@ -245,44 +304,136 @@
                 </svg>
             </div>
             <h1>Holo Apps</h1>
-            <p>A Collection of Personal Projects</p>
+            <p>Apps de hololive... que mas van a ser</p>
         </div>
 
         <div class="apps-grid">
             <!-- HoloRoulette Card -->
             <a href="roulette/" class="app-card">
-                <div class="app-icon">🎡</div>
+                <div class="app-icon">
+                    <img src="" alt="Hololive member" data-card="0">
+                </div>
                 <div class="app-content">
                     <h2 class="app-title">Holo Roulette</h2>
-                    <p class="app-description">Spin the wheel for giveaways and random selections. Perfect for tournaments and community events.</p>
-                    <button class="app-button">Launch App →</button>
+                    <p class="app-description">Gira la ruleta para entregar premios de forma aleatoria. Perfecto para torneos y eventos comunitarios.</p>
+                    <button class="app-button">Ir</button>
                 </div>
             </a>
 
             <!-- HoloRound Card -->
             <a href="round/" class="app-card">
-                <div class="app-icon">⏱️</div>
+                <div class="app-icon">
+                    <img src="" alt="Hololive member" data-card="1">
+                </div>
                 <div class="app-content">
                     <h2 class="app-title">Holo Round</h2>
-                    <p class="app-description">Tournament round timer and podium display. Show live results with player names and deck information.</p>
-                    <button class="app-button">Launch App →</button>
+                    <p class="app-description">Temporizador y visualización de videos. Para que ver el tiempo de ronda sea más sencillo y divertido.</p>
+                    <button class="app-button">Ir</button>
                 </div>
             </a>
 
             <!-- HoloTOP Card -->
             <a href="top/" class="app-card">
-                <div class="app-icon">🏆</div>
+                <div class="app-icon">
+                    <img src="" alt="Hololive member" data-card="2">
+                </div>
                 <div class="app-content">
                     <h2 class="app-title">Holo TOP</h2>
-                    <p class="app-description">Hololive trading card game portfolio. Browse collections and explore the card universe.</p>
-                    <button class="app-button">Launch App →</button>
+                    <p class="app-description">Clasificación de los mejores jugadores en tiempo real.</p>
+                    <button class="app-button">Ir</button>
                 </div>
             </a>
         </div>
 
         <div class="footer">
-            <p>Made with 💜 for Hololive fans | <a href="https://github.com/nemedrack/HoloApps" target="_blank">View on GitHub</a></p>
+            <p>by Neme | <a href="https://github.com/nemedrack/HoloApps" target="_blank">View on GitHub</a></p>
         </div>
     </div>
+
+    <script>
+        const imagePool = [
+            'images/member1.png',
+            'images/member2.png',
+            'images/member3.png',
+            'images/member4.png',
+            'images/member5.png',
+            'images/member6.png',
+            'images/member7.png',
+            'images/member8.png',
+            'images/member9.png',
+            'images/member10.png',
+            'images/member11.png',
+            'images/member12.png',
+            'images/member13.png'
+        ];
+
+        const unitCombinations = [
+            { members: [1, 9, 10, 13], unit: 'bakatare circus' },
+            { members: [1, 9, 10], unit: 'bakatare' },
+            { members: [10, 11, 12], unit: 'fubumicomet' },
+            { members: [1, 7], unit: 'ShishiWata' },
+            { members: [1, 9], unit: 'FureWata' },
+            { members: [1, 8], unit: 'LambDuck' },
+            { members: [1, 11], unit: 'WataMiko' },
+            { members: [11, 12], unit: 'miComet' },
+            { members: [5], unit: 'AmeSame' },
+            { members: [11, 8], unit: 'MikoSuba' },
+        ];
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function extractMemberNumber(imagePath) {
+            const match = imagePath.match(/member(\d+)/);
+            return match ? parseInt(match[1]) : null;
+        }
+
+        function checkUnitCombinations(loadedMembers) {
+            const units = new Set();
+            const loadedSet = new Set(loadedMembers);
+
+            if (loadedSet.has(5)) {
+                units.add('AmeSame');
+            }
+
+            for (const combo of unitCombinations) {
+                if (combo.members.every(m => loadedSet.has(m))) {
+                    units.add(combo.unit);
+                }
+            }
+
+            return Array.from(units);
+        }
+
+        function assignRandomImages() {
+            const shuffledImages = shuffleArray(imagePool);
+            const cardImages = document.querySelectorAll('.app-icon img');
+            const loadedMembers = [];
+
+            cardImages.forEach((img, index) => {
+                img.src = shuffledImages[index];
+                const memberNum = extractMemberNumber(shuffledImages[index]);
+                if (memberNum) loadedMembers.push(memberNum);
+            });
+
+            const units = checkUnitCombinations(loadedMembers);
+            if (units.length > 0) {
+                const blessingMsg = document.getElementById('blessingMessage');
+                const message = units.length > 1
+                    ? `Has sido bendecido por ${units.join(' y ')}`
+                    : `Has sido bendecido por ${units[0]}`;
+                blessingMsg.textContent = message;
+                blessingMsg.classList.add('show');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', assignRandomImages);
+    </script>
 </body>
 </html>
