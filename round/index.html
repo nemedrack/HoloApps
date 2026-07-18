@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temporizador de Rondas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .csp-notice {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(201, 75, 92, 0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 100;
+            display: none;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .left-panel {
+            flex: 1;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .youtube-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background: #000;
+        }
+
+        .youtube-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        #youtubePlayer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .video-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .video-controls button {
+            padding: 10px 20px;
+            background: rgba(201, 75, 92, 0.9);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .video-controls button:hover {
+            background: rgba(201, 75, 92, 1);
+            transform: scale(1.05);
+        }
+
+        .video-error {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #fff;
+            padding: 30px;
+            background: rgba(0,0,0,0.8);
+            border-radius: 10px;
+            max-width: 400px;
+            z-index: 10;
+        }
+
+        .video-error h3 {
+            color: #c94b5c;
+            margin-bottom: 15px;
+        }
+
+        .video-error p {
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .video-error button {
+            margin: 5px;
+            padding: 10px 20px;
+            background: #c94b5c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .video-error button:hover {
+            background: #b33a4a;
+        }
+
+        .right-panel {
+            flex: 1;
+            background: linear-gradient(135deg, #d4c5b0 0%, #b8a890 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .logo-container {
+            margin-bottom: 30px;
+            width: 300px;
+            height: 100px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .logo-container:hover {
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .logo-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .logo-placeholder {
+            color: white;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .timer-display {
+            font-size: 120px;
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 40px;
+            text-shadow: 0 0 8px rgba(0,0,0,0.8);
+            cursor: pointer;
+            user-select: none;
+            padding: 20px 40px;
+            border-radius: 18px;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(4px);
+        }
+
+        .timer-display.editing {
+            outline: 3px solid #c94b5c;
+            padding: 10px 20px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+        }
+
+        button {
+            padding: 15px 40px;
+            font-size: 18px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .btn-start {
+            background: #c94b5c;
+            color: white;
+        }
+
+        .btn-start:hover {
+            background: #b33a4a;
+            transform: scale(1.05);
+        }
+
+        .btn-reset {
+            background: #d4a574;
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background: #c09463;
+            transform: scale(1.05);
+        }
+
+        .btn-lastcall {
+            background: #f1c40f;
+            color: #000;
+        }
+
+        .btn-lastcall:hover {
+            background: #d4ac0d;
+            transform: scale(1.05);
+        }
+
+        .last-call-info {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #333;
+            text-align: center;
+            min-height: 18px;
+        }
+
+        .last-call-active .timer-display {
+            background: rgba(192, 57, 43, 0.95) !important;
+            color: #ffffff;
+            box-shadow: 0 0 25px rgba(192,57,43,0.9);
+            animation: lastCallPulse 1s infinite;
+        }
+
+        @keyframes lastCallPulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .timeup-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .timeup-modal.show {
+            display: flex;
+        }
+
+        .timeup-modal-content {
+            background: #111;
+            padding: 40px 60px;
+            border-radius: 20px;
+            text-align: center;
+            color: #fff;
+            box-shadow: 0 0 30px rgba(0,0,0,0.7);
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .timeup-modal-content h2 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .timeup-modal-content p {
+            font-size: 18px;
+            margin-bottom: 25px;
+        }
+
+        .btn-modal-ok {
+            padding: 10px 30px;
+            border: none;
+            border-radius: 999px;
+            background: #e74c3c;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.2s;
+        }
+
+        .btn-modal-ok:hover {
+            background: #c0392b;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(231,76,60,0.8);
+        }
+
+        .settings-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            background: rgba(201, 75, 92, 0.8);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .settings-icon:hover {
+            background: rgba(201, 75, 92, 1);
+            transform: rotate(90deg);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .form-group-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .form-group-checkbox input[type="checkbox"] {
+            width: auto;
+        }
+
+        .info-text {
+            font-size: 11px;
+            color: #666;
+            margin-top: 5px;
+            line-height: 1.4;
+        }
+
+        .api-status {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+
+        .api-status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .api-status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn-save {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-cancel {
+            background: #999;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .timer-display {
+                font-size: 80px;
+            }
+
+            .logo-container {
+                width: 200px;
+                height: 80px;
+            }
+
+            button {
+                padding: 12px 30px;
+                font-size: 16px;
+            }
+
+            .video-controls {
+                flex-wrap: wrap;
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left-panel">
+            <div class="youtube-container">
+                <div id="youtubePlayer"></div>
+                <div class="video-controls" id="videoControls" style="display: none;">
+                    <button onclick="loadRandomVideo()">🔀 Video Aleatorio</button>
+                    <button onclick="nextVideo()">⏭️ Siguiente</button>
+                </div>
+                <div class="video-error" id="videoError" style="display: none;">
+                    <h3>⚠️ Video no disponible</h3>
+                    <p>El video no se puede reproducir porque el propietario ha restringido la reproducción embebida.</p>
+                    <p><strong>Soluciones:</strong></p>
+                    <p style="font-size: 12px;">
+                        • Usa un video o playlist diferente<br>
+                        • Abre el video en YouTube directamente<br>
+                        • Usa videos de canales que permitan embebido
+                    </p>
+                    <button onclick="openYouTubeDirectly()">Abrir en YouTube</button>
+                    <button onclick="hideError()">Cerrar</button>
+                </div>
+                <div class="csp-notice" id="cspNotice">
+                    Video actualizado correctamente
+                </div>
+            </div>
+        </div>
+
+        <div class="right-panel" id="rightPanel">
+            <div class="settings-icon" onclick="openSettings()">⚙</div>
+            
+            <div class="logo-container" onclick="document.getElementById('logoInput').click()">
+                <div class="logo-placeholder" id="logoPlaceholder">Click para agregar logo</div>
+                <img id="logoImage" style="display: none;">
+            </div>
+            <input type="file" id="logoInput" accept="image/*" style="display: none;" onchange="loadLogo(event)">
+
+            <div class="timer-display" id="timerDisplay" onclick="editTime()">35:00</div>
+
+            <div class="controls">
+                <button class="btn-start" id="startBtn" onclick="toggleTimer()">Iniciar</button>
+                <button class="btn-reset" onclick="resetTimer()">Reiniciar</button>
+                <button class="btn-lastcall" onclick="configureLastCall()">Last Call</button>
+            </div>
+            <div class="last-call-info" id="lastCallInfo"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <h2>Configuración</h2>
+            
+            <div id="apiStatus" class="api-status" style="display: none;"></div>
+            
+            <div class="form-group">
+                <label>URL de YouTube (Video o Playlist)</label>
+                <input type="text" id="youtubeUrl" placeholder="https://youtube.com/watch?v=... o https://youtube.com/playlist?list=...">
+                <p class="info-text">
+                    ⚠️ Nota: Algunos videos pueden estar restringidos por sus propietarios
+                </p>
+            </div>
+            <div class="form-group-checkbox">
+                <input type="checkbox" id="randomPlaylist" checked>
+                <label for="randomPlaylist" style="margin: 0;">Reproducción aleatoria de playlist</label>
+            </div>
+            <div class="form-group-checkbox">
+                <input type="checkbox" id="autoPlayNext" checked>
+                <label for="autoPlayNext" style="margin: 0;">Reproducir siguiente video automáticamente</label>
+            </div>
+            <div class="form-group-checkbox">
+                <input type="checkbox" id="showVideoControls" checked>
+                <label for="showVideoControls" style="margin: 0;">Mostrar controles de video</label>
+            </div>
+            <div class="form-group">
+                <label>Imagen de Fondo (URL)</label>
+                <input type="text" id="backgroundUrl" placeholder="https://ejemplo.com/imagen.jpg">
+            </div>
+            <div class="form-group">
+                <label>O subir imagen de fondo</label>
+                <input type="file" id="backgroundInput" accept="image/*" onchange="loadBackground(event)">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeSettings()">Cancelar</button>
+                <button class="btn-save" onclick="saveSettings()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="timeUpModal" class="timeup-modal">
+        <div class="timeup-modal-content">
+            <h2>¡Tiempo terminado!</h2>
+            <p>La ronda ha finalizado.</p>
+            <button class="btn-modal-ok" onclick="closeTimeUpModal()">OK</button>
+        </div>
+    </div>
+
+    <!-- Cargar configuración desde archivo externo (generado por GitHub Actions) -->
+    <script src="config.js"></script>
+
+    <script>
+        let time = 35 * 60;
+        let originalTime = 35 * 60;
+        let timerInterval = null;
+        let isRunning = false;
+        let currentYoutubeUrl = '';
+
+        let lastCallAt = null; 
+        let lastCallTriggered = false;
+
+        // Variables para manejo de playlist
+        let playlistId = null;
+        let playlistVideos = [];
+        let currentVideoIndex = 0;
+        let randomPlayback = true;
+        let youtubeApiKey = '';
+        let usedVideoIndices = [];
+        let autoPlayNext = true;
+        let player = null;
+        let playerReady = false;
+
+        const DEFAULT_BG_URL = "https://en.hololive-official-cardgame.com/wp-content/uploads/2026/05/ec_hbp06_main.jpg";
+        // Función para cargar imagen de fondo desde archivo a
+
+        // Cargar YouTube IFrame Player API
+        let tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        let firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        window.onYouTubeIframeAPIReady = function() {
+            console.log('✅ YouTube IFrame API cargada');
+        };
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const rightPanel = document.getElementById('rightPanel');
+            if (rightPanel) {
+                if (!rightPanel.style.backgroundImage) {
+                    rightPanel.style.backgroundImage = `url("${DEFAULT_BG_URL}")`;
+                    rightPanel.style.backgroundSize = 'cover';
+                    rightPanel.style.backgroundPosition = 'center';
+                    rightPanel.style.backgroundRepeat = 'no-repeat';
+                }
+            }
+
+            // Cargar API Key desde configuración
+            checkApiKeyStatus();
+        });
+
+        function checkApiKeyStatus() {
+            const apiStatus = document.getElementById('apiStatus');
+            
+            if (window.YOUTUBE_CONFIG && window.YOUTUBE_CONFIG.apiKey) {
+                youtubeApiKey = window.YOUTUBE_CONFIG.apiKey;
+                apiStatus.className = 'api-status success';
+                apiStatus.textContent = '✅ YouTube API Key configurada correctamente';
+                apiStatus.style.display = 'block';
+                console.log('✅ API Key cargada desde configuración');
+            } else {
+                apiStatus.className = 'api-status error';
+                apiStatus.textContent = '❌ YouTube API Key no configurada. Las playlists aleatorias no funcionarán.';
+                apiStatus.style.display = 'block';
+                console.warn('⚠️ No se encontró API Key en la configuración');
+            }
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function updateDisplay() {
+            document.getElementById('timerDisplay').textContent = formatTime(time);
+        }
+
+        function toggleTimer() {
+            const btn = document.getElementById('startBtn');
+            
+            if (isRunning) {
+                clearInterval(timerInterval);
+                btn.textContent = 'Iniciar';
+                isRunning = false;
+            } else {
+                timerInterval = setInterval(() => {
+                    if (time > 0) {
+                        time--;
+                        updateDisplay();
+
+                        if (lastCallAt !== null && !lastCallTriggered && time <= lastCallAt) {
+                            activateLastCall();
+                        }
+                    } else {
+                        clearInterval(timerInterval);
+                        btn.textContent = 'Iniciar';
+                        isRunning = false;
+                        lastCallTriggered = false;
+                        clearLastCallVisual();
+                        showTimeUpModal();
+                    }
+                }, 1000);
+                btn.textContent = 'Pausar';
+                isRunning = true;
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            time = originalTime;
+            updateDisplay();
+            document.getElementById('startBtn').textContent = 'Iniciar';
+            isRunning = false;
+            lastCallTriggered = false;
+            clearLastCallVisual();
+        }
+
+        function configureLastCall() {
+            const currentFormatted = formatTime(time);
+            const input = prompt('Ingresa el tiempo para LAST CALL (minutos:segundos)', currentFormatted);
+
+            if (!input) {
+                return;
+            }
+
+            const parts = input.split(':');
+            if (parts.length !== 2) {
+                alert('Formato inválido. Usa mm:ss, por ejemplo 05:00');
+                return;
+            }
+
+            const mins = Number(parts[0]);
+            const secs = Number(parts[1]);
+
+            if (isNaN(mins) || isNaN(secs)) {
+                alert('Formato inválido. Usa mm:ss, por ejemplo 05:00');
+                return;
+            }
+
+            const totalSeconds = mins * 60 + secs;
+
+            if (totalSeconds <= 0 || totalSeconds >= time) {
+                alert('El tiempo de LAST CALL debe ser mayor que 0 y menor que el tiempo total actual.');
+                return;
+            }
+
+            lastCallAt = totalSeconds;
+            lastCallTriggered = false;
+            clearLastCallVisual();
+
+            const info = document.getElementById('lastCallInfo');
+            if (info) {
+                info.textContent = 'LAST CALL en ' + formatTime(lastCallAt);
+            }
+        }
+
+        function activateLastCall() {
+            lastCallTriggered = true;
+            const rightPanel = document.getElementById('rightPanel');
+            if (rightPanel) {
+                rightPanel.classList.add('last-call-active');
+            }
+        }
+
+        function clearLastCallVisual() {
+            const rightPanel = document.getElementById('rightPanel');
+            if (rightPanel) {
+                rightPanel.classList.remove('last-call-active');
+            }
+        }
+
+        function editTime() {
+            if (isRunning) {
+                clearInterval(timerInterval);
+                isRunning = false;
+                document.getElementById('startBtn').textContent = 'Iniciar';
+            }
+            
+            const display = document.getElementById('timerDisplay');
+            display.classList.add('editing');
+            
+            const [mins, secs] = display.textContent.split(':');
+            const input = prompt('Ingresa el tiempo (minutos:segundos)', `${mins}:${secs}`);
+            
+            if (input) {
+                const [newMins, newSecs] = input.split(':').map(Number);
+                if (!isNaN(newMins) && !isNaN(newSecs)) {
+                    time = newMins * 60 + newSecs;
+                    originalTime = time;
+                    updateDisplay();
+
+                    lastCallTriggered = false;
+                    if (lastCallAt !== null && lastCallAt > time) {
+                        lastCallAt = null;
+                        const info = document.getElementById('lastCallInfo');
+                        if (info) info.textContent = '';
+                    }
+                    clearLastCallVisual();
+                }
+            }
+            
+            display.classList.remove('editing');
+        }
+
+        function loadLogo(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById('logoImage');
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                    document.getElementById('logoPlaceholder').style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function openSettings() {
+            document.getElementById('settingsModal').classList.add('active');
+            checkApiKeyStatus(); // Actualizar estado al abrir
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsModal').classList.remove('active');
+        }
+
+        function openYouTubeDirectly() {
+            if (currentYoutubeUrl) {
+                window.open(currentYoutubeUrl, '_blank');
+            }
+        }
+
+        function hideError() {
+            document.getElementById('videoError').style.display = 'none';
+        }
+
+        function showVideoError() {
+            document.getElementById('videoError').style.display = 'block';
+        }
+
+        function extractPlaylistId(url) {
+            const match = url.match(/[?&]list=([^&]+)/);
+            return match ? match[1] : null;
+        }
+
+        async function fetchPlaylistVideos(playlistId, apiKey) {
+            if (!apiKey) {
+                alert('YouTube API Key no configurada. Por favor contacta al administrador.');
+                return [];
+            }
+
+            const videos = [];
+            const videoIds = new Set();
+            let nextPageToken = '';
+            let duplicatesCount = 0;
+            
+            try {
+                do {
+                    const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${playlistId}&key=${apiKey}${nextPageToken ? '&pageToken=' + nextPageToken : ''}`;
+                    
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    
+                    if (data.error) {
+                        alert('Error con la API Key: ' + data.error.message + '\n\nPor favor contacta al administrador.');
+                        return [];
+                    }
+                    
+                    if (data.items) {
+                        data.items.forEach(item => {
+                            if (item.snippet && item.snippet.resourceId) {
+                                const videoId = item.snippet.resourceId.videoId;
+                                
+                                if (!videoIds.has(videoId)) {
+                                    videoIds.add(videoId);
+                                    videos.push({
+                                        videoId: videoId,
+                                        title: item.snippet.title,
+                                        thumbnail: item.snippet.thumbnails?.default?.url
+                                    });
+                                } else {
+                                    duplicatesCount++;
+                                    console.log(`⚠️ Video duplicado omitido: ${item.snippet.title}`);
+                                }
+                            }
+                        });
+                    }
+                    
+                    nextPageToken = data.nextPageToken || '';
+                } while (nextPageToken);
+                
+                console.log(`✅ Playlist cargada: ${videos.length} videos únicos encontrados`);
+                if (duplicatesCount > 0) {
+                    console.log(`🔄 ${duplicatesCount} duplicados eliminados`);
+                    showNotice(`✅ ${videos.length} videos únicos (${duplicatesCount} duplicados eliminados)`);
+                }
+                return videos;
+            } catch (error) {
+                alert('Error al cargar la playlist: ' + error.message);
+                console.error('Error:', error);
+                return [];
+            }
+        }
+
+        async function loadRandomVideo() {
+            if (!playlistId) {
+                alert('No hay una playlist cargada');
+                return;
+            }
+
+            if (playlistVideos.length === 0) {
+                showNotice('Cargando lista de videos...');
+                playlistVideos = await fetchPlaylistVideos(playlistId, youtubeApiKey);
+                
+                if (playlistVideos.length === 0) {
+                    return;
+                }
+            }
+
+            if (usedVideoIndices.length >= playlistVideos.length) {
+                usedVideoIndices = [];
+                showNotice('🔄 Reiniciando lista...');
+            }
+
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * playlistVideos.length);
+            } while (usedVideoIndices.includes(randomIndex) && usedVideoIndices.length < playlistVideos.length);
+
+            usedVideoIndices.push(randomIndex);
+            const video = playlistVideos[randomIndex];
+            
+            showNotice(`🎵 ${video.title.substring(0, 50)}...`);
+            console.log(`Reproduciendo: ${video.title}`);
+            
+            if (player && playerReady) {
+                player.loadVideoById(video.videoId);
+            } else {
+                createYouTubePlayer(video.videoId);
+            }
+        }
+
+        async function nextVideo() {
+            if (!playlistId) {
+                alert('No hay una playlist cargada');
+                return;
+            }
+
+            if (playlistVideos.length === 0) {
+                showNotice('Cargando lista de videos...');
+                playlistVideos = await fetchPlaylistVideos(playlistId, youtubeApiKey);
+                
+                if (playlistVideos.length === 0) {
+                    return;
+                }
+            }
+
+            currentVideoIndex = (currentVideoIndex + 1) % playlistVideos.length;
+            const video = playlistVideos[currentVideoIndex];
+            
+            showNotice(`🎵 ${video.title.substring(0, 50)}...`);
+            console.log(`Reproduciendo: ${video.title}`);
+            
+            if (player && playerReady) {
+                player.loadVideoById(video.videoId);
+            } else {
+                createYouTubePlayer(video.videoId);
+            }
+        }
+
+        function createYouTubePlayer(videoId) {
+            if (player) {
+                try {
+                    player.destroy();
+                } catch (e) {
+                    console.log('No se pudo destruir player anterior');
+                }
+            }
+
+            playerReady = false;
+
+            const container = document.getElementById('youtubePlayer');
+            if (!container) {
+                console.error('Contenedor youtubePlayer no encontrado');
+                return;
+            }
+
+            if (typeof YT === 'undefined' || typeof YT.Player === 'undefined') {
+                console.error('YouTube IFrame API no está cargada aún. Reintentando...');
+                setTimeout(() => createYouTubePlayer(videoId), 500);
+                return;
+            }
+
+            player = new YT.Player('youtubePlayer', {
+                height: '100%',
+                width: '100%',
+                videoId: videoId,
+                playerVars: {
+                    autoplay: 1,
+                    rel: 0,
+                    modestbranding: 1,
+                    origin: window.location.origin
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange,
+                    'onError': onPlayerError
+                }
+            });
+        }
+
+        function onPlayerError(event) {
+            console.error('Error en el reproductor:', event.data);
+            showNotice('❌ Error al cargar el video');
+            
+            if (autoPlayNext && playlistId) {
+                setTimeout(() => {
+                    loadRandomVideo();
+                }, 2000);
+            }
+        }
+
+        function onPlayerReady(event) {
+            playerReady = true;
+            console.log('✅ Player listo');
+            event.target.playVideo();
+        }
+
+        function onPlayerStateChange(event) {
+            if (event.data === YT.PlayerState.ENDED) {
+                console.log('⏭️ Video terminado, cargando siguiente...');
+                if (autoPlayNext && playlistId) {
+                    setTimeout(() => {
+                        loadRandomVideo();
+                    }, 1000);
+                }
+            }
+            
+            if (event.data === YT.PlayerState.PLAYING) {
+                console.log('▶️ Reproduciendo...');
+            }
+        }
+
+        function showNotice(message) {
+            const notice = document.getElementById('cspNotice');
+            notice.textContent = message;
+            notice.style.display = 'block';
+            setTimeout(() => {
+                notice.style.display = 'none';
+            }, 2000);
+        }
+
+        function saveSettings() {
+            const youtubeUrl = document.getElementById('youtubeUrl').value;
+            const backgroundUrl = document.getElementById('backgroundUrl').value;
+            randomPlayback = document.getElementById('randomPlaylist').checked;
+            autoPlayNext = document.getElementById('autoPlayNext').checked;
+            const showControls = document.getElementById('showVideoControls').checked;
+            
+            if (youtubeUrl) {
+                currentYoutubeUrl = youtubeUrl;
+                let embedUrl = '';
+                
+                const listId = extractPlaylistId(youtubeUrl);
+                
+                if (listId) {
+                    playlistId = listId;
+                    playlistVideos = [];
+                    usedVideoIndices = [];
+                    currentVideoIndex = 0;
+                    
+                    if (randomPlayback && youtubeApiKey) {
+                        document.getElementById('videoControls').style.display = showControls ? 'flex' : 'none';
+                        closeSettings();
+                        loadRandomVideo();
+                        return;
+                    } else if (randomPlayback && !youtubeApiKey) {
+                        alert('⚠️ YouTube API Key no configurada. Por favor contacta al administrador.');
+                        return;
+                    } else {
+                        embedUrl = `https://www.youtube-nocookie.com/embed/videoseries?list=${listId}&rel=0&modestbranding=1&autoplay=1`;
+                        document.getElementById('videoControls').style.display = 'none';
+                    }
+                } else {
+                    playlistId = null;
+                    playlistVideos = [];
+                    document.getElementById('videoControls').style.display = 'none';
+                    
+                    if (player) {
+                        try {
+                            player.destroy();
+                        } catch (e) {}
+                        player = null;
+                        playerReady = false;
+                    }
+                    
+                    const container = document.getElementById('youtubePlayer');
+                    container.innerHTML = '';
+                    const iframe = document.createElement('iframe');
+                    iframe.style.width = '100%';
+                    iframe.style.height = '100%';
+                    iframe.style.border = 'none';
+                    iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+                    iframe.setAttribute('allowfullscreen', '');
+                    
+                    if (youtubeUrl.includes('youtube.com/watch')) {
+                        const videoId = youtubeUrl.split('v=')[1]?.split('&')[0];
+                        if (videoId) {
+                            embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1&autoplay=1`;
+                            iframe.src = embedUrl;
+                        }
+                    } else if (youtubeUrl.includes('youtu.be/')) {
+                        const videoId = youtubeUrl.split('youtu.be/')[1]?.split('?')[0];
+                        if (videoId) {
+                            embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1&autoplay=1`;
+                            iframe.src = embedUrl;
+                        }
+                    } else if (youtubeUrl.includes('youtube.com/embed/')) {
+                        embedUrl = youtubeUrl.replace('youtube.com', 'youtube-nocookie.com');
+                        if (!embedUrl.includes('?')) {
+                            embedUrl += '?rel=0&modestbranding=1&autoplay=1';
+                        }
+                        iframe.src = embedUrl;
+                    }
+                    
+                    if (iframe.src) {
+                        container.appendChild(iframe);
+                        document.getElementById('videoError').style.display = 'none';
+                        showNotice('Video actualizado correctamente');
+                    }
+                }
+                
+                if (embedUrl && !listId) {
+                    const container = document.getElementById('youtubePlayer');
+                    container.innerHTML = '';
+                    const iframe = document.createElement('iframe');
+                    iframe.style.width = '100%';
+                    iframe.style.height = '100%';
+                    iframe.style.border = 'none';
+                    iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+                    iframe.setAttribute('allowfullscreen', '');
+                    iframe.src = embedUrl;
+                    container.appendChild(iframe);
+                    document.getElementById('videoError').style.display = 'none';
+                    showNotice('Video actualizado correctamente');
+                }
+            }
+            
+            if (backgroundUrl) {
+                document.getElementById('rightPanel').style.backgroundImage = `url(${backgroundUrl})`;
+            }
+            
+            closeSettings();
+        }
+
+        function loadBackground(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('rightPanel').style.backgroundImage = `url(${e.target.result})`;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Web Audio API: alarma sutil estilo campana (3 toques descendentes)
+        let audioCtx = null;
+        let previousVolume = null;
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                const Ctx = window.AudioContext || window.webkitAudioContext;
+                if (Ctx) {
+                    audioCtx = new Ctx();
+                }
+            }
+            return audioCtx;
+        }
+
+        function playBell(ctx, frequency, startTime, duration) {
+            // Oscilador principal (tono fundamental)
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            const masterGain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(frequency, startTime);
+
+            // Envolvente tipo campana: ataque rápido, decaimiento suave
+            masterGain.gain.setValueAtTime(0.95, startTime);
+            gain.gain.setValueAtTime(0, startTime);
+            gain.gain.linearRampToValueAtTime(0.95, startTime + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+
+            osc.connect(gain);
+            gain.connect(masterGain);
+            masterGain.connect(ctx.destination);
+            osc.start(startTime);
+            osc.stop(startTime + duration);
+
+            // Armónico (le da carácter de campana)
+            const osc2 = ctx.createOscillator();
+            const gain2 = ctx.createGain();
+            const masterGain2 = ctx.createGain();
+            osc2.type = 'sine';
+            osc2.frequency.setValueAtTime(frequency * 2, startTime);
+            masterGain2.gain.setValueAtTime(0.95, startTime);
+            gain2.gain.setValueAtTime(0, startTime);
+            gain2.gain.linearRampToValueAtTime(0.32, startTime + 0.02);
+            gain2.gain.exponentialRampToValueAtTime(0.0001, startTime + duration * 0.7);
+            osc2.connect(gain2);
+            gain2.connect(masterGain2);
+            masterGain2.connect(ctx.destination);
+            osc2.start(startTime);
+            osc2.stop(startTime + duration * 0.7);
+        }
+
+        function playAlarm() {
+            try {
+                const ctx = getAudioContext();
+                if (!ctx) return;
+
+                // Algunos navegadores requieren reanudar el contexto
+                if (ctx.state === 'suspended') {
+                    ctx.resume();
+                }
+
+                const now = ctx.currentTime;
+                // Tres campanadas descendentes y espaciadas: sutil pero clara
+                playBell(ctx, 880, now, 1.2);          // La5
+                playBell(ctx, 698.46, now + 0.45, 1.2); // Fa5
+                playBell(ctx, 523.25, now + 0.9, 1.6);  // Do5
+            } catch (e) {
+                console.warn('No se pudo reproducir la alarma:', e);
+            }
+        }
+
+        function duckYoutubeVolume() {
+            try {
+                if (player && playerReady && typeof player.getVolume === 'function') {
+                    previousVolume = player.getVolume();
+                    player.setVolume(Math.max(10, Math.floor(previousVolume * 0.25)));
+                }
+            } catch (e) {
+                // Silencioso: si falla, no bloqueamos la alarma
+            }
+        }
+
+        function restoreYoutubeVolume() {
+            try {
+                if (player && playerReady && previousVolume !== null && typeof player.setVolume === 'function') {
+                    player.setVolume(previousVolume);
+                    previousVolume = null;
+                }
+            } catch (e) {}
+        }
+
+        function showTimeUpModal() {
+            const modal = document.getElementById('timeUpModal');
+            if (modal) {
+                modal.classList.add('show');
+            }
+            duckYoutubeVolume();
+            playAlarm();
+        }
+
+        function closeTimeUpModal() {
+            const modal = document.getElementById('timeUpModal');
+            if (modal) {
+                modal.classList.remove('show');
+            }
+            restoreYoutubeVolume();
+        }
+    </script>
+</body>
+</html>

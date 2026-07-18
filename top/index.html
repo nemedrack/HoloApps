@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HoloTOP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-image: url("https://en.hololive-official-cardgame.com/wp-content/uploads/2025/09/hBP03en_2000_1010-e1767068011985.png");
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .desktop-only { 
+            display: block !important; 
+        }
+        
+        .mobile-only  { 
+            display: none !important; 
+        }
+
+        @media (max-width: 768px) {
+            body {
+                align-items: flex-start;
+                padding: 15px;
+            }
+            
+            .desktop-only { 
+                display: none !important; 
+            }
+            
+            .mobile-only  { 
+                display: block !important; 
+            }
+        }
+
+        .container-desktop {
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .header h1 {
+            color: #fff;
+            font-size: 3rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #d0d8e6;
+            font-size: 1.1rem;
+            font-weight: 300;
+        }
+
+        .podium {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card:nth-child(1) {
+            order: 2;
+            transform: translateY(-20px);
+        }
+        
+        .card:nth-child(2) {
+            order: 1;
+        }
+        
+        .card:nth-child(3) {
+            order: 3;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: slideIn 0.6s ease-out backwards;
+        }
+
+        .card:nth-child(1) {
+            animation-delay: 0.2s;
+        }
+
+        .card:nth-child(2) {
+            animation-delay: 0s;
+        }
+
+        .card:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+        }
+
+        .card.gold::before {
+            background: linear-gradient(90deg, #FFD700, #FFA500);
+        }
+
+        .card.silver::before {
+            background: linear-gradient(90deg, #C0C0C0, #808080);
+        }
+
+        .card.bronze::before {
+            background: linear-gradient(90deg, #CD7F32, #8B4513);
+        }
+
+        .medal {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #fff;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .gold .medal {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+        }
+
+        .silver .medal {
+            background: linear-gradient(135deg, #E8E8E8, #A0A0A0);
+        }
+
+        .bronze .medal {
+            background: linear-gradient(135deg, #CD7F32, #8B4513);
+        }
+
+        .avatar-container {
+            width: 220px;
+            height: 220px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 4px solid #f0f0f0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+            position: relative;
+            cursor: pointer;
+        }
+
+        .avatar-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-container:hover::after {
+            content: '📷';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        .player-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .player-name:hover {
+            background: #f0f0f0;
+        }
+
+        .deck-label {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .deck-container {
+            margin-top: 10px;
+        }
+
+        .deck-name {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #34495e;
+            cursor: pointer;
+            padding: 8px 15px;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .deck-name:hover {
+            background: #f0f0f0;
+        }
+
+        .container-mobile {
+            width: 100%;
+            max-width: 480px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header-mobile {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .header-mobile h1 {
+            color: #fff;
+            font-size: 1.4rem;
+            line-height: 1.2;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .podium-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .bar-item {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            border-radius: 14px;
+            background: rgba(0, 0, 0, 0.55);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+        }
+
+        .bar-medal {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #fff;
+            font-size: 0.95rem;
+        }
+
+        .bar-gold .bar-medal {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+        }
+        .bar-silver .bar-medal {
+            background: linear-gradient(135deg, #C0C0C0, #808080);
+        }
+        .bar-bronze .bar-medal {
+            background: linear-gradient(135deg, #CD7F32, #8B4513);
+        }
+
+        .bar-main {
+            flex: 1;
+            border-radius: 12px;
+            padding: 8px 14px;
+            padding-right: 70px;
+        }
+
+        .bar-text {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            color: #fff;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+        }
+
+        .separator {
+            opacity: 0.8;
+        }
+
+        .bar-text .player-name {
+            margin: 0;
+            padding: 2px 6px;
+            background: none;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .bar-text .player-name:hover {
+            background: rgba(255,255,255,0.1);
+            border-radius: 6px;
+        }
+
+        .bar-text .deck-name {
+            margin: 0;
+            padding: 2px 6px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #f0f8ff;
+        }
+
+        .bar-text .deck-name:hover {
+            background: rgba(255,255,255,0.1);
+            border-radius: 6px;
+        }
+
+        .bar-avatar {
+            position: absolute;
+            right: 10px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid #fff;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            cursor: pointer;
+        }
+
+        .bar-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .theme-red    .bar-main { background: linear-gradient(90deg,#ff6b6b,#ff4757); }
+        .theme-blue   .bar-main { background: linear-gradient(90deg,#4dabf7,#1e90ff); }
+        .theme-green  .bar-main { background: linear-gradient(90deg,#2ecc71,#27ae60); }
+        .theme-purple .bar-main { background: linear-gradient(90deg,#9b59b6,#8e44ad); }
+        .theme-gold   .bar-main { background: linear-gradient(90deg,#ffd54f,#ffb300); }
+        .theme-pink   .bar-main { background: linear-gradient(90deg,#ff8fb1,#ff5e95); }
+        .theme-gray   .bar-main { background: linear-gradient(90deg,#cfd8dc,#90a4ae); }
+
+        .bar-gold   { box-shadow: 0 0 0 2px #ffbf00, 0 8px 18px rgba(0,0,0,.35); }
+        .bar-silver { box-shadow: 0 0 0 2px #b0bec5, 0 8px 18px rgba(0,0,0,.35); }
+        .bar-bronze { box-shadow: 0 0 0 2px #cd7f32, 0 8px 18px rgba(0,0,0,.35); }
+
+        .tournament-photo-container {
+            width: 100%;
+            margin-top: 16px;
+        }
+
+        .tournament-photo-container h3 {
+            display: none;
+        }
+
+        .photo-upload-area {
+            position: relative;
+            width: 100%;
+            min-height: 250px;
+            border: 3px dashed #3498db;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .photo-upload-area:hover {
+            border-color: #2980b9;
+            background: #ecf0f1;
+        }
+
+        .photo-upload-area.has-image {
+            border: none;
+            border-radius: 20px;
+            min-height: auto;
+        }
+
+        .photo-placeholder {
+            text-align: center;
+            color: #7f8c8d;
+            padding: 20px;
+        }
+
+        .photo-placeholder span {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .photo-placeholder p {
+            font-size: 0.95rem;
+            margin-bottom: 5px;
+        }
+
+        .photo-placeholder small {
+            font-size: 0.8rem;
+            color: #95a5a6;
+        }
+
+        #tournamentPhoto {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            display: none;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        #tournamentPhoto.show {
+            display: block;
+        }
+
+        input[type="file"]#photoUpload {
+            display: none;
+        }
+
+        .capture-button {
+            width: 100%;
+            margin-top: 20px;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .capture-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .capture-button:active {
+            transform: translateY(0);
+        }
+
+        .capture-button span {
+            font-size: 1.3rem;
+        }
+
+        /* ========== MODALES ========== */
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            text-align: center;
+            transition: border 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .edit-mode {
+            background: #fff;
+        }
+
+        .selection-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .selection-modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-header h2 {
+            color: #2c3e50;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            color: #7f8c8d;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .close-modal:hover {
+            background: #ecf0f1;
+            color: #2c3e50;
+        }
+
+        .edition-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .edition-option {
+            cursor: pointer;
+            text-align: center;
+            padding: 20px 15px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            background: #f8f9fa;
+        }
+
+        .edition-option:hover {
+            background: #e8f4f8;
+            border-color: #3498db;
+            transform: translateY(-5px);
+        }
+
+        .edition-option h3 {
+            font-size: 1.1rem;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .edition-option p {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+        }
+
+        .avatar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .avatar-option {
+            cursor: pointer;
+            text-align: center;
+            padding: 15px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .avatar-option:hover {
+            background: #f8f9fa;
+            border-color: #3498db;
+            transform: translateY(-5px);
+        }
+
+        .avatar-option img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .avatar-option p {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+
+        .back-button {
+            background: #95a5a6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .back-button:hover {
+            background: #7f8c8d;
+            transform: translateY(-2px);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 767px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .avatar-container {
+                width: 180px;
+                height: 180px;
+            }
+
+            .player-name {
+                font-size: 1.3rem;
+            }
+
+            .edition-grid {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-desktop desktop-only">
+        <div class="header">
+            <h1>🏆 Top 3 Hololive Store Tournament - Top8 Store</h1>
+        </div>
+
+        <div class="podium">
+            <div class="card gold">
+                <div class="medal">1°</div>
+                <div class="avatar-container" onclick="showEditionSelector('img1-desktop')">
+                    <img id="img1-desktop" src="https://ui-avatars.com/api/?name=Chicago&size=200&background=FFD700&color=fff&bold=true" alt="Chicago">
+                </div>
+                <div class="player-name" onclick="editName(this)">Primer Lugar</div>
+                <div class="deck-label">Deck utilizado</div>
+                <div class="deck-container">
+                    <div class="deck-name" id="deck1-desktop-name" onclick="editName(this)">Deck</div>
+                </div>
+            </div>
+
+            <div class="card silver">
+                <div class="medal">2°</div>
+                <div class="avatar-container" onclick="showEditionSelector('img2-desktop')">
+                    <img id="img2-desktop" src="https://ui-avatars.com/api/?name=Bluumy&size=200&background=C0C0C0&color=fff&bold=true" alt="Bluumy">
+                </div>
+                <div class="player-name" onclick="editName(this)">Segundo Lugar</div>
+                <div class="deck-label">Deck utilizado</div>
+                <div class="deck-container">
+                    <div class="deck-name" id="deck2-desktop-name" onclick="editName(this)">Deck</div>
+                </div>
+            </div>
+
+            <div class="card bronze">
+                <div class="medal">3°</div>
+                <div class="avatar-container" onclick="showEditionSelector('img3-desktop')">
+                    <img id="img3-desktop" src="https://ui-avatars.com/api/?name=Matikanetannhauser&size=200&background=CD7F32&color=fff&bold=true" alt="Matikanetannhauser">
+                </div>
+                <div class="player-name" onclick="editName(this)">Tercer Lugar</div>
+                <div class="deck-label">Deck utilizado</div>
+                <div class="deck-container">
+                    <div class="deck-name" id="deck3-desktop-name" onclick="editName(this)">Deck</div>
+                </div>
+            </div>
+        </div>
+
+        
+    </div>
+
+    <div class="container-mobile mobile-only">
+        <div class="header-mobile">
+            <h1>🏆 Top 3 Hololive Store Tournament - Top8 Store</h1>
+        </div>
+        <div class="podium-bars">
+            <div class="bar-item bar-gold theme-green" id="bar1">
+                <div class="bar-medal">1°</div>
+                <div class="bar-main">
+                    <div class="bar-text">
+                        <span class="player-name" onclick="editName(this)">Primero</span>
+                        <span class="separator"> - </span>
+                        <span class="deck-name" id="deck1-mobile-name" onclick="editName(this)">Deck</span>
+                    </div>
+                </div>
+                <div class="bar-avatar" onclick="showEditionSelector('img1-mobile')">
+                    <img id="img1-mobile" src="https://ui-avatars.com/api/?name=Chicago&size=200&background=FFD700&color=fff&bold=true" alt="Chicago">
+                </div>
+            </div>
+            <div class="bar-item bar-silver theme-blue" id="bar2">
+                <div class="bar-medal">2°</div>
+                <div class="bar-main">
+                    <div class="bar-text">
+                        <span class="player-name" onclick="editName(this)">Segundo</span>
+                        <span class="separator"> - </span>
+                        <span class="deck-name" id="deck2-mobile-name" onclick="editName(this)">Deck</span>
+                    </div>
+                </div>
+                <div class="bar-avatar" onclick="showEditionSelector('img2-mobile')">
+                    <img id="img2-mobile" src="https://ui-avatars.com/api/?name=Bluumy&size=200&background=C0C0C0&color=fff&bold=true" alt="Bluumy">
+                </div>
+            </div>
+            <div class="bar-item bar-bronze theme-purple" id="bar3">
+                <div class="bar-medal">3°</div>
+                <div class="bar-main">
+                    <div class="bar-text">
+                        <span class="player-name" onclick="editName(this)">Tercero</span>
+                        <span class="separator"> - </span>
+                        <span class="deck-name" id="deck3-mobile-name" onclick="editName(this)">Deck</span>
+                    </div>
+                </div>
+                <div class="bar-avatar" onclick="showEditionSelector('img3-mobile')">
+                    <img id="img3-mobile" src="https://ui-avatars.com/api/?name=Matikanetannhauser&size=200&background=CD7F32&color=fff&bold=true" alt="Matikanetannhauser">
+                </div>
+            </div>
+        </div>
+        <div class="tournament-photo-container">
+            <h3>📸 Foto Grupal del Torneo</h3>
+            <div class="photo-upload-area" onclick="document.getElementById('photoUpload').click()">
+                <div class="photo-placeholder" id="photoPlaceholder">
+                    <span style="font-size: 3rem;">📷</span>
+                    <p><strong>Toca para subir foto</strong></p>
+                    <small>Foto grupal del torneo</small>
+                </div>
+                <img id="tournamentPhoto" alt="Foto del torneo">
+            </div>
+            <input type="file" id="photoUpload" accept="image/*" onchange="loadTournamentPhoto(this)">
+        </div>
+
+        <button class="capture-button" onclick="captureAndDownload()">
+            <span>📸</span>
+            Descargar Imagen del Top 3
+        </button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <script>
+        const editionCatalog = {
+            "Rojo": [
+                { name: "Kiara Ramp", url: "https://i.imgur.com/7DddWQp.png", deck: "Kiara Ramp" },
+                { name: "KiaraIroha", url: "https://i.imgur.com/rmxZGdn.png", deck: "KiaraIroha" },
+                { name: "Polkiara", url: "https://i.imgur.com/dbnwBQ9.png", deck: "Polkiara" },
+                { name: "KiaraZeta", url: "https://i.imgur.com/fYxgTfp.png", deck: "KiaraZeta" },
+                { name: "Lui", url: "https://i.imgur.com/rDakLnv.png", deck: "Lui" },
+                { name: "Polka 12 Fans", url: "https://i.imgur.com/C0mzs3L.png", deck: "Polka 12 Fans" },
+                { name: "Mono Marine", url: "https://i.imgur.com/v9AeARI.png", deck: "Mono Marine" },
+                { name: "MarineChloe", url: "https://i.imgur.com/FglW8ok.png", deck: "MarineChloe" },
+                { name: "MarineIroha", url: "https://i.imgur.com/EseuZJp.png", deck: "MarineIroha" },
+                { name: "Mono Ayame", url: "https://i.imgur.com/xgbV4BT.png", deck: "Mono Ayame" },
+                { name: "AyaMio", url: "https://i.imgur.com/x6eKCr0.png", deck: "AyaMio" },
+                { name: "AyaPeko", url: "https://i.imgur.com/KKgm9l3.png", deck: "AyaPeko" },
+                { name: "Miko", url: "https://i.imgur.com/EeAJvOX.png", deck: "Miko" }
+            ],
+            "Azul": [
+                { name: "SuiMoona", url: "https://i.imgur.com/r4z6EYH.png", deck: "SuiMoona" },
+                { name: "SuiChloe", url: "https://i.imgur.com/tUTRHGc.png", deck: "SuiChloe" },
+                { name: "SuIroha", url: "https://i.imgur.com/Cgtr93s.png", deck: "SuIroha" },
+                { name: "SuiRobo", url: "https://i.imgur.com/Ij7WbAD.png", deck: "SuiRobo" },
+                { name: "miComet", url: "https://i.imgur.com/FxfpSoS.png", deck: "miComet" },
+                { name: "Kobo", url: "https://i.imgur.com/XapzolQ.png", deck: "Kobo" },
+                { name: "MoonaZeta", url: "https://i.imgur.com/0O3KFLK.png", deck: "MoonaZeta" },
+                { name: "MoonaIofi", url: "https://i.imgur.com/uriFZKC.png", deck: "MoonaIofi" },
+                { name: "Mono Chloe", url: "https://i.imgur.com/NV63LfA.png", deck: "Mono Chloe" },
+                { name: "ChloeLui", url: "https://i.imgur.com/Kll2xHT.png", deck: "ChloeLui" },
+                { name: "Okayu", url: "https://i.imgur.com/Jk5u68t.png", deck: "Okayu" },
+                { name: "Fuwamoco", url: "https://i.imgur.com/JPUkCte.png", deck: "Fuwamoco" }
+            ],
+            "Verde": [
+                { name: "Azki", url: "https://i.imgur.com/KEvKr8G.png", deck: "Azki" },
+                { name: "Aki", url: "https://i.imgur.com/3DZYXmM.png", deck: "Aki" },
+                { name: "Mono Pekora", url: "https://i.imgur.com/nmqazTq.png", deck: "Mono Pekora" },
+                { name: "PekoMarine", url: "https://i.imgur.com/xZXIHkm.png", deck: "PekoMarine" },
+                { name: "PekoIroha", url: "https://i.imgur.com/emJckIg.png", deck: "PekoIroha" },
+                { name: "PekoMoona", url: "https://i.imgur.com/4J9F9Ra.png", deck: "PekoMoona" },
+                { name: "ReineIofi", url: "https://i.imgur.com/IsSyC0r.png", deck: "ReineIofi" },
+                { name: "ReineZeta", url: "https://i.imgur.com/oDQY6RH.png", deck: "ReineZeta" },
+                { name: "ReineMarine", url: "https://i.imgur.com/bjIRtMP.png", deck: "ReineMarine" },
+                { name: "Mio", url: "https://i.imgur.com/yAW93w4.png", deck: "Mio" },
+                { name: "Mono Iroha", url: "https://i.imgur.com/GUOzOxh.png", deck: "Mono Iroha" },
+                { name: "Botan", url: "https://i.imgur.com/OSJtfho.png", deck: "Botan" }
+            ],
+            "Blanco": [
+                { name: "Sora", url: "https://i.imgur.com/hlP3tZH.png", deck: "Sora" },
+                { name: "SoraRoboco", url: "https://i.imgur.com/hV6edUS.png", deck: "SoraRoboco" },
+                { name: "SoraAzRoboco", url: "https://i.imgur.com/4WC7zl8.png", deck: "SoraAzRoboco" },
+                { name: "Mono Kanata", url: "https://i.imgur.com/Ba3EdkG.png", deck: "Mono Kanata" },
+                { name: "Kanata Promise", url: "https://i.imgur.com/OMXA9Qr.png", deck: "Kanata Promise" },
+                { name: "Promise Core", url: "https://i.imgur.com/xXEKfLQ.png", deck: "Promise Core" },
+                { name: "Mono Fubuki", url: "https://i.imgur.com/nbUIapj.png", deck: "Mono Fubuki" },
+                { name: "FubuMio", url: "https://i.imgur.com/6dEQh9r.png", deck: "FubuMio" },
+                { name: "Kana Shion", url: "https://i.imgur.com/ZIKkcub.png", deck: "Kana Shion" },
+                { name: "Hajime Kanade", url: "https://i.imgur.com/nxpxa3s.png", deck: "Hajime Kanade" },
+                { name: "Hajime Ao", url: "https://i.imgur.com/BFLpTPW.png", deck: "Hajime Ao" },
+                { name: "Luna", url: "https://i.imgur.com/0OWHOb3.png", deck: "Luna" }
+            ],
+            "Púrpura": [
+                { name: "Ollie", url: "https://i.imgur.com/Dts6vKa.png", deck: "Ollie" },
+                { name: "Calli Ramp", url: "https://i.imgur.com/6Lvkt36.png", deck: "Calli Ramp" },
+                { name: "TakaMori", url: "https://i.imgur.com/J2DvLJR.png", deck: "TakaMori" },
+                { name: "Mono Shion", url: "https://i.imgur.com/J2xWGFj.png", deck: "Mono Shion" },
+                { name: "ShionChloe", url: "https://i.imgur.com/N1sChoy.png", deck: "ShionChloe" },
+                { name: "Ina", url: "https://i.imgur.com/xQgwmGX.png", deck: "Ina" },
+                { name: "Choco Sensei", url: "https://i.imgur.com/aHM048N.png", deck: "Choco Sensei" },
+                { name: "Choco Ramp", url: "https://i.imgur.com/9yKamze.png", deck: "Choco Ramp" },
+                { name: "Towa Core", url: "https://i.imgur.com/JE3SRyz.png", deck: "Towa Core" },
+                { name: "Towa Ramp", url: "https://i.imgur.com/gO6jG9r.png", deck: "Towa Ramp" }
+            ],
+            "Amarillo": [
+                { name: "Watame", url: "https://i.imgur.com/m2ylD3n.png", deck: "Watame" },
+                { name: "Watame Ramp", url: "https://i.imgur.com/hhwjLCC.png", deck: "Watame Ramp" },
+                { name: "Mono Flare", url: "https://i.imgur.com/Jh6rTBi.png", deck: "Mono Flare" },
+                { name: "Flare Peko", url: "https://i.imgur.com/v3SDjjI.png", deck: "Flare Peko" },
+                { name: "Flare Marine", url: "https://i.imgur.com/eViezRv.png", deck: "Flare Marine" },
+                { name: "RisuIofi", url: "https://i.imgur.com/yIEbK23.png", deck: "RisuIofi" },
+                { name: "RisuMoona", url: "https://i.imgur.com/XYEH9Gq.png", deck: "RisuMoona" },
+                { name: "Mono Korone", url: "https://i.imgur.com/gyAApw4.png", deck: "Mono Korone" }
+            ],
+            "Starters": [
+                { name: "SD01 - Sora - AZ", url: "https://i.imgur.com/uz9cGq5.png", deck: "SD01 - Sora - AZ" },
+                { name: "SD02 - Nakiri Ayame", url: "https://i.imgur.com/AljvxaG.png", deck: "SD02 - Nakiri Ayame" },
+                { name: "SD03 - Nekomata Okayu", url: "https://i.imgur.com/lmsgaNU.png", deck: "SD03 - Nekomata Okayu" },
+                { name: "SD04 - Yuzuki Choco", url: "https://i.imgur.com/JeqjBJq.png", deck: "SD04 - Yuzuki Choco" },
+                { name: "SD05 - Todoroki Hajime", url: "https://i.imgur.com/zBcGE5A.png", deck: "SD05 - Todoroki Hajime" },
+                { name: "SD06 - Kazama Iroha", url: "https://i.imgur.com/nFeRaDk.png", deck: "SD06 - Kazama Iroha" },
+                { name: "SD07 - Shiranui Flare", url: "https://i.imgur.com/SSN6szu.png", deck: "SD07 - Shiranui Flare" }
+            ]
+        };
+
+        let currentImgId = null;
+
+        function showEditionSelector(imgId) {
+            currentImgId = imgId;
+            const modal = document.createElement('div');
+            modal.className = 'selection-modal';
+            modal.innerHTML = `
+                <div class="selection-modal-content">
+                    <div class="modal-header">
+                        <h2>Selecciona un Color</h2>
+                        <button class="close-modal" onclick="this.closest('.selection-modal').remove()">✕</button>
+                    </div>
+                    <div class="edition-grid">
+                        ${Object.keys(editionCatalog).map(color => `
+                            <div class="edition-option" onclick="showAvatarsFromEdition('${color}')">
+                                <h3>${color}</h3>
+                                <p>${editionCatalog[color].length} decks</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function showAvatarsFromEdition(color) {
+            const modal = document.querySelector('.selection-modal');
+            modal.innerHTML = `
+                <div class="selection-modal-content">
+                    <div class="modal-header">
+                        <h2>Decks - ${color}</h2>
+                        <button class="close-modal" onclick="this.closest('.selection-modal').remove()">✕</button>
+                    </div>
+                    <button class="back-button" onclick="showEditionSelector('${currentImgId}')">← Volver a Colores</button>
+                    <div class="avatar-grid">
+                        ${editionCatalog[color].map(avatar => `
+                            <div class="avatar-option" onclick="selectAvatarWithDeck('${currentImgId}', '${avatar.url}', '${avatar.deck}')">
+                                <img src="${avatar.url}" alt="${avatar.name}">
+                                <p>${avatar.name}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectAvatarWithDeck(imgId, url, deckName) {
+            document.getElementById(imgId).src = url;
+            
+            if (imgId.includes('desktop')) {
+                const deckNum = imgId.match(/\d+/)[0];
+                document.getElementById(`deck${deckNum}-desktop-name`).textContent = deckName;
+            } else if (imgId.includes('mobile')) {
+                const deckNum = imgId.match(/\d+/)[0];
+                document.getElementById(`deck${deckNum}-mobile-name`).textContent = deckName;
+                updateBarTheme(`bar${deckNum}`, deckName);
+            }
+            
+            document.querySelector('.selection-modal').remove();
+        }
+
+        function updateBarTheme(barId, deckName) {
+            const bar = document.getElementById(barId);
+            if (!bar) return;
+
+            bar.classList.remove('theme-red', 'theme-blue', 'theme-green', 'theme-purple', 'theme-gold', 'theme-pink', 'theme-gray');
+
+            const deckThemes = {
+                'promise': 'theme-green',
+                'peko': 'theme-green',
+                'reine': 'theme-green',
+                'aki': 'theme-green',
+                'azki': 'theme-green',
+                'mio': 'theme-green',
+                'iroha' : 'theme-green',
+                'botan' : 'theme-green',
+                
+                'sui': 'theme-blue',
+                'moona': 'theme-blue',
+                'chloe': 'theme-blue',
+                'kobo': 'theme-blue',
+                'okayu': 'theme-blue',
+                'fuwamoco': 'theme-blue',
+                'fuwawa': 'theme-blue',
+                'micomet': 'theme-blue',
+                
+                'marine': 'theme-red',
+                'kiara': 'theme-red',
+                'polka': 'theme-red',
+                'lui': 'theme-red',
+                'aya': 'theme-red',
+                'ayame': 'theme-red',
+                'miko': 'theme-red',
+                
+                'takamori': 'theme-purple',
+                'shion': 'theme-purple',
+                'choco': 'theme-purple',
+                'ollie': 'theme-purple',
+                'ina': 'theme-purple',
+                'calli': 'theme-purple',
+                'choco sensei': 'theme-purple',
+                'towa': 'theme-purple',
+                
+                'sora': 'theme-gray',
+                'kanata': 'theme-gray',
+                'fubuki': 'theme-gray',
+                'promise': 'theme-gray',
+                'hajime': 'theme-gray',
+                'luna': 'theme-gray',
+                'sd01': 'theme-gray',
+                'sd02': 'theme-gray',
+                'sd03': 'theme-gray',
+                'sd04': 'theme-gray'
+            };
+
+            const deckLower = deckName.toLowerCase();
+            let themeClass = 'theme-gray';
+            
+            if (deckLower.includes('promise') || deckLower.includes('sora') || 
+                deckLower.includes('kanata') || deckLower.includes('fubuki') ||
+                deckLower.includes('sd0')) {
+                themeClass = 'theme-gray';
+            } else {
+                for (const [key, theme] of Object.entries(deckThemes)) {
+                    if (deckLower.includes(key) && theme !== 'theme-gray') {
+                        themeClass = theme;
+                        break;
+                    }
+                }
+            }
+
+            bar.classList.add(themeClass);
+        }
+
+        function loadTournamentPhoto(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById('tournamentPhoto');
+                    const placeholder = document.getElementById('photoPlaceholder');
+                    const uploadArea = document.querySelector('.photo-upload-area');
+                    
+                    img.src = e.target.result;
+                    img.classList.add('show');
+                    placeholder.style.display = 'none';
+                    uploadArea.classList.add('has-image');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function captureAndDownload() {
+            const container = document.querySelector('.container-mobile');
+            const button = document.querySelector('.capture-button');
+            button.style.display = 'none';
+            
+            html2canvas(container, {
+                backgroundColor: '#1a1a2e',
+                scale: 2,
+                logging: false,
+                useCORS: true,
+                allowTaint: true
+            }).then(canvas => {
+                button.style.display = 'flex';
+                
+                canvas.toBlob(function(blob) {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    const fecha = new Date().toISOString().slice(0,10);
+                    link.download = `Top3-Torneo-${fecha}.png`;
+                    link.href = url;
+                    link.click();
+                    URL.revokeObjectURL(url);
+                });
+            }).catch(error => {
+                button.style.display = 'flex';
+                console.error('Error al capturar:', error);
+                alert('Hubo un error al capturar la imagen. Intenta nuevamente.');
+            });
+        }
+
+        function editName(element) {
+            const currentText = element.textContent;
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = currentText;
+            input.className = 'edit-mode';
+            
+            input.onblur = function() {
+                element.textContent = this.value || currentText;
+                element.style.display = 'inline-block';
+                this.remove();
+            };
+            
+            input.onkeypress = function(e) {
+                if (e.key === 'Enter') {
+                    this.blur();
+                }
+            };
+            
+            element.style.display = 'none';
+            element.parentNode.insertBefore(input, element);
+            input.focus();
+            input.select();
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            if (window.innerWidth <= 768) {
+                updateBarTheme('bar1', 'Promise Core');
+                updateBarTheme('bar2', 'ReineMarine');
+                updateBarTheme('bar3', 'TakaMori');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruleta de Sorteos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e8e4f3 0%, #d4cce8 100%);
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            min-height: 100vh;
+            max-width: 100%;
+            width: 100%;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #5b4e7c;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(91, 78, 124, 0.2);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 350px 400px 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: linear-gradient(135deg, #f8f7fb 0%, #eeeaf5 100%);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(91, 78, 124, 0.15);
+            border: 2px solid #d4cce8;
+        }
+
+        .wheel-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 600px;
+            grid-column: 2 / 4;
+            grid-row: 1;
+        }
+
+        .legend-panel {
+            background: linear-gradient(135deg, #f8f7fb 0%, #eeeaf5 100%);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(91, 78, 124, 0.15);
+            border: 2px solid #d4cce8;
+            grid-column: 1;
+            grid-row: 2;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .legend-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            margin-bottom: 6px;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .legend-color {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .legend-name {
+            font-weight: 500;
+            color: #333;
+            font-size: 14px;
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .legend-entries {
+            background: linear-gradient(135deg, #6b5b95 0%, #5b4e7c 100%);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .panel h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"], input[type="number"] {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus, input[type="number"]:focus {
+            outline: none;
+            border-color: #6b5b95;
+            box-shadow: 0 0 0 3px rgba(107, 91, 149, 0.1);
+        }
+
+        input[type="number"] {
+            max-width: 100px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, #6b5b95 0%, #5b4e7c 100%);
+            color: white;
+        }
+
+        .btn-add:hover {
+            background: linear-gradient(135deg, #5b4e7c 0%, #4a3d63 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(91, 78, 124, 0.3);
+        }
+
+        .btn-spin {
+            background: linear-gradient(135deg, #6b5b95 0%, #5b4e7c 100%);
+            color: white;
+            width: 100%;
+            font-size: 20px;
+            padding: 15px;
+        }
+
+        .btn-spin:hover:not(:disabled) {
+            background: linear-gradient(135deg, #5b4e7c 0%, #4a3d63 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(91, 78, 124, 0.3);
+        }
+
+        .btn-spin:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-remove {
+            background: #ef4444;
+            color: white;
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+
+        .btn-remove:hover {
+            background: #dc2626;
+        }
+
+        .btn-clear {
+            background: linear-gradient(135deg, #9b8bb8 0%, #8a7ba8 100%);
+            color: white;
+        }
+
+        .btn-clear:hover {
+            background: linear-gradient(135deg, #8a7ba8 0%, #7a6ba0 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(138, 123, 168, 0.3);
+        }
+
+        .btn-randomize {
+            background: linear-gradient(135deg, #8b7ab8 0%, #7a6ba0 100%);
+            color: white;
+            padding: 12px 24px;
+            font-size: 16px;
+        }
+
+        .btn-randomize:hover:not(:disabled) {
+            background: linear-gradient(135deg, #7a6ba0 0%, #6b5b95 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(122, 107, 160, 0.3);
+        }
+
+        .btn-randomize:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-import {
+            background: linear-gradient(135deg, #8b7ab8 0%, #7a6ba0 100%);
+            color: white;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn-import:hover {
+            background: linear-gradient(135deg, #7a6ba0 0%, #6b5b95 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(122, 107, 160, 0.3);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            overflow: auto;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 2% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #333;
+        }
+
+        .close-btn {
+            font-size: 28px;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .csv-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .csv-table th,
+        .csv-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .csv-table th {
+            background-color: #6b5b95;
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        .csv-table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .csv-table input[type="number"] {
+            width: 80px;
+            padding: 6px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn-accept {
+            background: linear-gradient(135deg, #6b5b95 0%, #5b4e7c 100%);
+            color: white;
+            padding: 12px 30px;
+        }
+
+        .btn-accept:hover {
+            background: linear-gradient(135deg, #5b4e7c 0%, #4a3d63 100%);
+            box-shadow: 0 4px 8px rgba(91, 78, 124, 0.3);
+        }
+
+        .btn-cancel {
+            background: #6b7280;
+            color: white;
+            padding: 12px 30px;
+        }
+
+        .btn-cancel:hover {
+            background: #4b5563;
+        }
+
+        #csvFileInput {
+            display: none;
+        }
+
+        .winner-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes scaleIn {
+            from { 
+                transform: scale(0.5) translateY(-50%);
+                opacity: 0;
+            }
+            to { 
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes confetti {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+
+        .winner-modal-content {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f7fb 100%);
+            margin: 5% auto;
+            padding: 40px;
+            border: 3px solid #6b5b95;
+            border-radius: 25px;
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+            position: relative;
+            animation: scaleIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 20px 60px rgba(107, 91, 149, 0.4);
+        }
+
+        .winner-modal-image {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            margin: 20px auto;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .winner-modal-title {
+            font-size: 3em;
+            color: #6b5b95;
+            margin-bottom: 20px;
+            font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(107, 91, 149, 0.3);
+        }
+
+        .winner-modal-name {
+            font-size: 2.5em;
+            color: #5b4e7c;
+            margin: 20px 0;
+            font-weight: 700;
+            padding: 20px;
+            background: linear-gradient(135deg, #eeeaf5 0%, #d4cce8 100%);
+            border-radius: 15px;
+            border: 2px solid #8b7ab8;
+        }
+
+        .winner-modal-close {
+            background: linear-gradient(135deg, #6b5b95 0%, #5b4e7c 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+
+        .winner-modal-close:hover {
+            background: linear-gradient(135deg, #5b4e7c 0%, #4a3d63 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(91, 78, 124, 0.4);
+        }
+
+        .confetti-piece {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #6b5b95;
+            top: -10px;
+            animation: confetti 3s linear forwards;
+            z-index: 1999;
+        }
+
+        .participants-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+
+        .participant-item {
+            background: white;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .participant-info {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex: 1;
+        }
+
+        .color-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .participant-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .participant-entries {
+            background: linear-gradient(135deg, #6b5b95 0%, #5b4e7c 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .wheel-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2));
+            width: 600px;
+            height: 600px;
+        }
+
+        .winner-display {
+            margin-top: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #9b8bb8 0%, #8b7ab8 100%);
+            border-radius: 15px;
+            text-align: center;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(107, 91, 149, 0.3);
+        }
+
+        .winner-text {
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #6b5b95;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .wheel-panel {
+                grid-column: 1;
+            }
+            
+            .legend-panel {
+                grid-column: 1;
+                grid-row: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>HoloRoulette</h1>
+        
+        <div class="main-content">
+            <div class="panel">
+                <h2>Agregar Participantes</h2>
+                <div class="input-group">
+                    <div class="input-row">
+                        <input type="text" id="participantName" placeholder="Nombre del participante">
+                    </div>
+                    <div class="input-row">
+                        <input type="number" id="participantEntries" placeholder="Entradas" min="1" value="1">
+                        <button class="btn-add" onclick="addParticipant()">Agregar</button>
+                    </div>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalParticipants">0</div>
+                        <div class="stat-label">Participantes</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalEntries">0</div>
+                        <div class="stat-label">Total Slots</div>
+                    </div>
+                </div>
+
+                <div class="participants-list" id="participantsList"></div>
+                
+                <input type="file" id="csvFileInput" accept=".csv" onchange="handleFileSelect(event)">
+                <button class="btn-import" onclick="document.getElementById('csvFileInput').click()">Importar CSV</button>
+                <button class="btn-clear" onclick="clearAll()" style="width: 100%; margin-top: 15px;">Limpiar Todo</button>
+            </div>
+
+            <div class="panel wheel-panel">
+                <div class="wheel-container">
+                    <canvas id="wheelCanvas" width="600" height="600"></canvas>
+                    <div style="display: flex; gap: 10px; width: 100%; margin-top: 15px; max-width: 600px;">
+                        <button class="btn-spin" id="spinBtn" onclick="spinWheel()" disabled style="flex: 2;">GIRAR RULETA</button>
+                        <button class="btn-randomize" id="randomizeBtn" onclick="randomizeSlots()" disabled style="flex: 1;">Shuffle</button>
+                    </div>
+                    <div class="winner-display" style="max-width: 600px; width: 100%;">
+                        <div class="winner-text" id="winnerDisplay">Agrega participantes para comenzar</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal para previsualización CSV -->
+        <div id="csvModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Previsualización de Participantes</h2>
+                    <button class="close-btn" onclick="closeModal()">&times;</button>
+                </div>
+                <div id="csvPreview"></div>
+                <div class="modal-actions">
+                    <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+                    <button class="btn-accept" onclick="acceptCSVImport()">Aceptar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal del ganador -->
+        <div id="winnerModal" class="winner-modal">
+            <div class="winner-modal-content">
+                <div class="winner-modal-title">¡GANADOR!</div>
+                <img src="https://i.imgur.com/imjnRDt.png" alt="Celebración" class="winner-modal-image">
+                <div class="winner-modal-name" id="winnerModalName"></div>
+                <button class="winner-modal-close" onclick="closeWinnerModal()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let participants = [];
+        let wheelSlots = []; // Array de slots individuales con nombres
+        let isSpinning = false;
+        let rotation = 0;
+
+        const canvas = document.getElementById('wheelCanvas');
+        const ctx = canvas.getContext('2d');
+        const participantColors = {};
+
+        function getColorForParticipant(name) {
+            if (!participantColors[name]) {
+                const hue = Object.keys(participantColors).length * 137.508; // Golden angle
+                participantColors[name] = `hsl(${hue % 360}, 70%, 60%)`;
+            }
+            return participantColors[name];
+        }
+
+        function addParticipant() {
+            const nameInput = document.getElementById('participantName');
+            const entriesInput = document.getElementById('participantEntries');
+            
+            const name = nameInput.value.trim();
+            const entries = parseInt(entriesInput.value) || 1;
+
+            if (name === '') {
+                alert('Por favor ingresa un nombre');
+                return;
+            }
+
+            const existing = participants.find(p => p.name.toLowerCase() === name.toLowerCase());
+            if (existing) {
+                existing.entries += entries;
+            } else {
+                participants.push({ name, entries });
+            }
+
+            nameInput.value = '';
+            entriesInput.value = '1';
+            nameInput.focus();
+
+            updateDisplay();
+        }
+
+        function removeParticipant(name) {
+            participants = participants.filter(p => p.name !== name);
+            delete participantColors[name];
+            updateDisplay();
+        }
+
+        function clearAll() {
+            if (participants.length > 0 && !confirm('¿Estás seguro de que quieres eliminar todos los participantes?')) {
+                return;
+            }
+            participants = [];
+            Object.keys(participantColors).forEach(key => delete participantColors[key]);
+            updateDisplay();
+        }
+
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function generateWheelSlots() {
+            wheelSlots = [];
+            participants.forEach(p => {
+                for (let i = 0; i < p.entries; i++) {
+                    wheelSlots.push(p.name);
+                }
+            });
+            // Mezclar aleatoriamente los slots
+            wheelSlots = shuffleArray(wheelSlots);
+        }
+
+        function updateDisplay() {
+            const list = document.getElementById('participantsList');
+            list.innerHTML = '';
+
+            participants.forEach(p => {
+                const color = getColorForParticipant(p.name);
+                const item = document.createElement('div');
+                item.className = 'participant-item';
+                item.innerHTML = `
+                    <div class="participant-info">
+                        <div class="color-indicator" style="background-color: ${color};"></div>
+                        <span class="participant-name">${p.name}</span>
+                        <span class="participant-entries">${p.entries} ${p.entries === 1 ? 'slot' : 'slots'}</span>
+                    </div>
+                    <button class="btn-remove" onclick="removeParticipant('${p.name.replace(/'/g, "\\'")}')">Eliminar</button>
+                `;
+                list.appendChild(item);
+            });
+
+            const totalParticipants = participants.length;
+            const totalEntries = participants.reduce((sum, p) => sum + p.entries, 0);
+
+            document.getElementById('totalParticipants').textContent = totalParticipants;
+            document.getElementById('totalEntries').textContent = totalEntries;
+            document.getElementById('spinBtn').disabled = totalParticipants === 0;
+            document.getElementById('randomizeBtn').disabled = totalParticipants === 0;
+
+            if (totalParticipants === 0) {
+                document.getElementById('winnerDisplay').textContent = 'Agrega participantes para comenzar';
+                wheelSlots = [];
+            } else {
+                generateWheelSlots();
+            }
+
+            updateColorLegend();
+            drawWheel();
+        }
+
+        function updateColorLegend() {
+            const legend = document.getElementById('colorLegend');
+            if (!legend) return;
+            
+            legend.innerHTML = '';
+
+            if (participants.length === 0) {
+                legend.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">No hay participantes</p>';
+                return;
+            }
+
+            participants.forEach(p => {
+                const color = getColorForParticipant(p.name);
+                const item = document.createElement('div');
+                item.className = 'legend-item';
+                item.innerHTML = `
+                    <div class="legend-color" style="background-color: ${color};"></div>
+                    <span class="legend-name" title="${p.name}">${p.name}</span>
+                    <span class="legend-entries">${p.entries}</span>
+                `;
+                legend.appendChild(item);
+            });
+        }
+
+        function drawWheel() {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = 260;
+            const pointerHeight = 45;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (wheelSlots.length === 0) {
+                ctx.fillStyle = '#e5e7eb';
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.fillStyle = '#9ca3af';
+                ctx.font = '24px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('Sin participantes', centerX, centerY);
+                return;
+            }
+
+            const totalSlots = wheelSlots.length;
+            const sliceAngle = (2 * Math.PI) / totalSlots;
+            let currentAngle = -Math.PI / 2 + rotation;
+
+            wheelSlots.forEach((name, index) => {
+                ctx.fillStyle = getColorForParticipant(name);
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, currentAngle, currentAngle + sliceAngle);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                // Dibujar nombre solo si hay suficiente espacio
+                if (totalSlots <= 40) {
+                    const textAngle = currentAngle + sliceAngle / 2;
+                    const textX = centerX + Math.cos(textAngle) * (radius * 0.7);
+                    const textY = centerY + Math.sin(textAngle) * (radius * 0.7);
+
+                    ctx.save();
+                    ctx.translate(textX, textY);
+                    ctx.rotate(textAngle + Math.PI / 2);
+                    ctx.fillStyle = 'white';
+                    
+                    // Ajustar tamaño de fuente según cantidad de slots
+                    const fontSize = totalSlots <= 10 ? 18 : totalSlots <= 20 ? 14 : totalSlots <= 30 ? 12 : 10;
+                    ctx.font = `bold ${fontSize}px Arial`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+                    ctx.shadowBlur = 3;
+                    
+                    // Truncar nombre si es muy largo
+                    const maxLength = totalSlots <= 10 ? 15 : totalSlots <= 20 ? 10 : totalSlots <= 30 ? 8 : 6;
+                    const displayName = name.length > maxLength ? name.substring(0, maxLength) + '.' : name;
+                    ctx.fillText(displayName, 0, 0);
+                    ctx.restore();
+                }
+
+                currentAngle += sliceAngle;
+            });
+
+            // Centro
+            ctx.fillStyle = '#333';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 20, 0, 2 * Math.PI);
+            ctx.fill();
+
+            // Indicador apuntando HACIA ARRIBA hacia la ruleta
+            ctx.fillStyle = 'red';
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY - radius - 5);
+            ctx.lineTo(centerX - 22, centerY - radius - 5 - pointerHeight);
+            ctx.lineTo(centerX + 22, centerY - radius - 5 - pointerHeight);
+            ctx.closePath();
+            ctx.shadowColor = 'rgba(0,0,0,0.4)';
+            ctx.shadowBlur = 8;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        }
+
+        function spinWheel() {
+            if (isSpinning || wheelSlots.length === 0) return;
+
+            isSpinning = true;
+            document.getElementById('spinBtn').disabled = true;
+            document.getElementById('randomizeBtn').disabled = true;
+            document.getElementById('winnerDisplay').textContent = 'Girando...';
+
+            // Configuración de la animación dramática
+            const spinDuration = 8000; // 8 segundos total
+            const minSpins = 8; // Mínimo 8 vueltas completas
+            const maxSpins = 12; // Máximo 12 vueltas completas
+            const spins = minSpins + Math.random() * (maxSpins - minSpins);
+            const targetRotation = rotation + (spins * 2 * Math.PI);
+            const startTime = Date.now();
+            const startRotation = rotation;
+
+            function animate() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / spinDuration, 1);
+                
+                // Curva de ease personalizada para un efecto más dramático
+                // Comienza suave, acelera un poco, y luego desacelera muy lentamente
+                let easeProgress;
+                if (progress < 0.1) {
+                    // Inicio suave (10% del tiempo)
+                    easeProgress = progress * 5; // Acelera de 0 a 0.5
+                } else if (progress < 0.3) {
+                    // Aceleración media (20% del tiempo)
+                    const localProgress = (progress - 0.1) / 0.2;
+                    easeProgress = 0.5 + localProgress * 0.3; // De 0.5 a 0.8
+                } else {
+                    // Desaceleración lenta y angustiante (70% del tiempo)
+                    const localProgress = (progress - 0.3) / 0.7;
+                    // Usamos una curva exponencial para hacer la desaceleración muy gradual
+                    easeProgress = 0.8 + (1 - Math.pow(1 - localProgress, 4)) * 0.2;
+                }
+
+                rotation = startRotation + (targetRotation - startRotation) * easeProgress;
+                drawWheel();
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    rotation = rotation % (2 * Math.PI);
+                    selectWinner();
+                    isSpinning = false;
+                    document.getElementById('spinBtn').disabled = false;
+                    document.getElementById('randomizeBtn').disabled = false;
+                }
+            }
+
+            animate();
+        }
+
+        function selectWinner() {
+            if (wheelSlots.length === 0) return;
+
+            const totalSlots = wheelSlots.length;
+            const sliceAngle = (2 * Math.PI) / totalSlots;
+            
+            // El puntero está arriba en -π/2
+            const pointerAngle = -Math.PI / 2;
+            
+            // Calculamos desde dónde empieza la ruleta
+            let currentAngle = -Math.PI / 2 + rotation;
+            
+            // Normalizamos
+            const normalizeAngle = (angle) => {
+                let normalized = angle % (2 * Math.PI);
+                if (normalized < 0) normalized += 2 * Math.PI;
+                return normalized;
+            };
+            
+            const normalizedPointer = normalizeAngle(pointerAngle);
+            
+            for (let i = 0; i < wheelSlots.length; i++) {
+                const normalizedStart = normalizeAngle(currentAngle);
+                const normalizedEnd = normalizeAngle(currentAngle + sliceAngle);
+                
+                let isInSlot = false;
+                if (normalizedStart <= normalizedEnd) {
+                    isInSlot = normalizedPointer >= normalizedStart && normalizedPointer < normalizedEnd;
+                } else {
+                    isInSlot = normalizedPointer >= normalizedStart || normalizedPointer < normalizedEnd;
+                }
+                
+                if (isInSlot) {
+                    document.getElementById('winnerDisplay').textContent = `Ganador: ${wheelSlots[i]}`;
+                    return;
+                }
+                
+                currentAngle += sliceAngle;
+            }
+            
+            // Fallback
+            document.getElementById('winnerDisplay').textContent = `Ganador: ${wheelSlots[0]}`;
+        }
+
+        function randomizeSlots() {
+            if (wheelSlots.length === 0) return;
+            generateWheelSlots();
+            drawWheel();
+            document.getElementById('winnerDisplay').textContent = 'Slots reorganizados!';
+        }
+
+        document.getElementById('participantName').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addParticipant();
+            }
+        });
+
+        document.getElementById('participantEntries').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addParticipant();
+            }
+        });
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                parseCSV(text);
+            };
+            reader.readAsText(file);
+            
+            // Limpiar el input para poder cargar el mismo archivo nuevamente si es necesario
+            event.target.value = '';
+        }
+
+        function parseCSV(text) {
+            const lines = text.split('\n');
+            csvData = [];
+
+            // Procesar desde la línea 33 (índice 32) en adelante
+            for (let i = 32; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+
+                const columns = line.split(',');
+                
+                // Verificar que tenga al menos 17 columnas
+                if (columns.length >= 17) {
+                    // Obtener el valor de la columna 4 (índice 3)
+                    const column4Value = columns[3].trim().replace(/['"]/g, '');
+                    
+                    // Excluir si el valor es 11
+                    if (column4Value === '11') {
+                        continue;
+                    }
+                    
+                    // Obtener el valor de la columna 12 (índice 11)
+                    const column12Value = columns[11].trim().replace(/['"]/g, '');
+                    
+                    // Excluir si el valor es 1
+                    if (column12Value === '1') {
+                        continue;
+                    }
+                    
+                    // Obtener el dato de la columna 17 (índice 16)
+                    const name = columns[16].trim().replace(/['"]/g, '');
+                    if (name) {
+                        csvData.push({
+                            name: name,
+                            entries: 1
+                        });
+                    }
+                }
+            }
+
+            if (csvData.length === 0) {
+                alert('No se encontraron participantes válidos en el CSV');
+                return;
+            }
+
+            showCSVModal();
+        }
+
+        function showCSVModal() {
+            const modal = document.getElementById('csvModal');
+            const preview = document.getElementById('csvPreview');
+
+            let tableHTML = `
+                <table class="csv-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Nombre</th>
+                            <th>Entradas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            csvData.forEach((participant, index) => {
+                tableHTML += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${participant.name}</td>
+                        <td><input type="number" min="1" value="${participant.entries}" 
+                            onchange="csvData[${index}].entries = parseInt(this.value) || 1"></td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += `
+                    </tbody>
+                </table>
+                <p style="color: #666; font-size: 14px;">
+                    <strong>Total de participantes:</strong> ${csvData.length}
+                </p>
+            `;
+
+            preview.innerHTML = tableHTML;
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('csvModal').style.display = 'none';
+        }
+
+        function acceptCSVImport() {
+            csvData.forEach(participant => {
+                const existing = participants.find(p => p.name.toLowerCase() === participant.name.toLowerCase());
+                if (existing) {
+                    existing.entries += participant.entries;
+                } else {
+                    participants.push({
+                        name: participant.name,
+                        entries: participant.entries
+                    });
+                }
+            });
+
+            updateDisplay();
+            closeModal();
+            
+            // Mostrar mensaje de éxito
+            document.getElementById('winnerDisplay').textContent = `${csvData.length} participantes importados`;
+            setTimeout(() => {
+                if (!isSpinning && participants.length > 0) {
+                    document.getElementById('winnerDisplay').textContent = 'Listo para girar';
+                }
+            }, 2000);
+        }
+
+        // Cerrar modal al hacer clic fuera de él
+        window.onclick = function(event) {
+            const csvModal = document.getElementById('csvModal');
+            const winnerModal = document.getElementById('winnerModal');
+            if (event.target === csvModal) {
+                closeModal();
+            }
+            if (event.target === winnerModal) {
+                closeWinnerModal();
+            }
+        }
+
+        drawWheel();
+    </script>
+</body>
+</html>
